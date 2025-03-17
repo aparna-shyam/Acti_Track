@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Activities</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: rgb(57, 5, 5);
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        h1 {
+            color: white;
+        }
+        input, button { 
+            width: 300px; 
+            padding: 10px; 
+            margin-bottom: 15px; 
+            border-radius: 5px; 
+            border: 1px solid #ccc; 
+            font-size: 16px; 
+        }
+        button {
+            cursor: pointer;
+            background-color: #896b60;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #7a5f53;
+        }
+        table { 
+            width: 80%; 
+            margin: auto; 
+            border-collapse: collapse; 
+            background: white; 
+        }
+        th, td { 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            text-align: left; 
+        }
+        th { 
+            background: #f5f2ea; 
+            color: #896b60; 
+        }
+        tr:nth-child(even) { 
+            background: #f9f9f9; 
+        }
+        #message { 
+            margin-top: 20px; 
+            font-size: 18px; 
+            color: #ff0000; 
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Search Activities</h1>
+    <input type="text" id="searchInput" placeholder="Enter UID to search...">
+    <button onclick="searchActivity()">Search</button>
+    <div id="message"></div>
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>Event Name</th>
+                <th>Activity Type</th>
+                <th>Organized By</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHPuR1x40sYBd4D_DJVYd4tGuok7EgjaU",
+            authDomain: "actitrack-87ade.firebaseapp.com",
+            projectId: "actitrack-87ade",
+            storageBucket: "actitrack-87ade.appspot.com",
+            messagingSenderId: "468944089030",
+            appId: "1:468944089030:web:52f6e4ce653f9cbbd8ccc7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let allActivities = [];
+
+        function displayMessage(message) {
+            document.getElementById("message").innerHTML = message;
+        }
+
+        async function fetchAllActivities() {
+            let tableBody = document.querySelector("#resultsTable tbody");
+            tableBody.innerHTML = "";
+            displayMessage("");
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "activities"));
+                if (querySnapshot.empty) {
+                    displayMessage("No activity records found in the database.");
+                    return;
+                }
+
+                allActivities = querySnapshot.docs.map(doc => doc.data());
+
+                renderTable(allActivities);
+            } catch (error) {
+                displayMessage("Error fetching data. Check Firestore permissions.");
+                console.error("Firestore Error:", error);
+            }
+        }
+
+        function renderTable(activities) {
+            let tableBody = document.querySelector("#resultsTable tbody");
+            tableBody.innerHTML = "";
+
+            activities.forEach(activity => {
+                let row = `<tr>
+                    <td>${activity.uid}</td>
+                    <td>${activity.eventName}</td>
+                    <td>${activity.activityType}</td>
+                    <td>${activity.organizedBy}</td>
+                    <td>${activity.startDate}</td>
+                    <td>${activity.endDate}</td>
+                    <td>${activity.duration}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function searchActivity() {
+            let query = document.getElementById("searchInput").value.trim();
+            let filteredActivities;
+            
+            if (query === "") {
+                filteredActivities = allActivities;
+                displayMessage("");
+            } else {
+                filteredActivities = allActivities.filter(activity => 
+                    activity.uid.trim().toLowerCase() === query.toLowerCase()
+                );
+
+                if (filteredActivities.length === 0) {
+                    displayMessage("No records found for the entered UID.");
+                } else {
+                    displayMessage("");
+                }
+            }
+            
+            renderTable(filteredActivities);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                alert("You must be logged in to access this page.");
+                window.location.href = "login.html";
+            } else {
+                fetchAllActivities();
+            }
+        });
+
+        window.searchActivity = searchActivity;
+    </script>
+</body>
+</html>

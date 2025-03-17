@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Events Calendar</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: rgb(57, 5, 5);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .calendar-container {
+      max-width: 800px;
+      margin: auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      color: black;
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    .day-name, .day-cell {
+      text-align: center;
+      padding: 10px;
+      min-height: 80px;
+      border-radius: 5px;
+    }
+    .day-name {
+      background: #896B60;
+      color: white;
+      font-weight: bold;
+    }
+    .day-cell {
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: background 0.3s;
+      position: relative;
+    }
+    .day-cell:hover {
+      background: #f0f0f0;
+    }
+    .event-indicator {
+      background: #ff6b6b;
+      color: white;
+      font-size: 0.7em;
+      padding: 2px 4px;
+      border-radius: 3px;
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+    }
+    .events-list {
+      margin-top: 20px;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      color: black;
+    }
+    .event-item {
+      background: #896B60;
+      color: white;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Event Calendar</h2>
+  <div class="calendar-container">
+    <div class="calendar-header">
+      <button id="prevMonth">Prev</button>
+      <span id="monthYear"></span>
+      <button id="nextMonth">Next</button>
+    </div>
+    <div class="calendar-grid" id="calendarGrid"></div>
+  </div>
+  <h3>Events on <span id="selectedDateDisplay">Select a date</span></h3>
+  <div class="events-list" id="eventDetails">Click on a date to see events.</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBHPuR1x40sYBd4D_DJVYd4tGuok7EgjaU",
+      authDomain: "actitrack-87ade.firebaseapp.com",
+      projectId: "actitrack-87ade",
+      storageBucket: "actitrack-87ade.firebaseapp.com",
+      messagingSenderId: "468944089030",
+      appId: "1:468944089030:web:52f6e4ce653f9cbbd8ccc7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+      } else {
+        alert("You must be logged in to view events.");
+        window.location.href = "login.html";
+      }
+    });
+
+    let currentDate = new Date();
+
+    function generateCalendar(date) {
+      const calendarGrid = document.getElementById('calendarGrid');
+      calendarGrid.innerHTML = '';
+
+      const monthYear = document.getElementById('monthYear');
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      monthYear.textContent = date.toLocaleString('default', { month: 'long' }) + ' ' + year;
+
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      dayNames.forEach(name => {
+        const dayNameCell = document.createElement('div');
+        dayNameCell.classList.add('day-name');
+        dayNameCell.textContent = name;
+        calendarGrid.appendChild(dayNameCell);
+      });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        calendarGrid.appendChild(document.createElement('div'));
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const cell = document.createElement('div');
+        cell.classList.add('day-cell');
+        cell.textContent = d;
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        cell.addEventListener('click', () => fetchEvents(dateStr));
+        calendarGrid.appendChild(cell);
+      }
+    }
+
+    async function fetchEvents(dateStr) {
+      document.getElementById('selectedDateDisplay').textContent = dateStr;
+      document.getElementById('eventDetails').innerHTML = "Loading events...";
+
+      const q = query(collection(db, "events"), where("date", "==", dateStr));
+      const querySnapshot = await getDocs(q);
+      let eventsHTML = "";
+
+      if (querySnapshot.empty) {
+        eventsHTML = "<p>No events on this date.</p>";
+      } else {
+        querySnapshot.forEach((doc) => {
+          const eventData = doc.data();
+          eventsHTML += `<div class="event-item"><strong>${eventData.name}</strong><br>${eventData.details}<br>Time: ${eventData.time}<br>Venue: ${eventData.venue}</div>`;
+        });
+      }
+
+      document.getElementById('eventDetails').innerHTML = eventsHTML;
+    }
+
+    generateCalendar(currentDate);
+  </script>
+</body>
+</html>

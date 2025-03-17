@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Activity Points</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script> <!-- Plugin for labels -->
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background:  rgb(57, 5, 5);
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: white; /* Ensure the heading is also white */
+        }
+        .main-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+        }
+        .container {
+            max-width: 400px;
+            width: 90%;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+        h1 {
+            color: #4a5568;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background: #896b60;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #896b60;
+        }
+        canvas {
+            width: 500px;
+            height: 500px;
+        }
+        .count-display {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <h1>Track Your Activity Points</h1>
+            <label for="c1">Enter Points for C1:</label>
+            <input type="number" id="c1" min="0" max="100" required>
+            
+            <label for="c2">Enter Points for C2:</label>
+            <input type="number" id="c2" min="0" max="100" required>
+            
+            <label for="c3">Enter Points for C3:</label>
+            <input type="number" id="c3" min="0" max="100" required>
+
+            <p class="error" id="error-message"></p>
+            
+            <button onclick="generateChart()">Generate Pie Chart</button>
+            
+            <div class="count-display" id="count-display"></div>
+        </div>
+
+        <div>
+            <canvas id="activityChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        function generateChart() {
+            let c1 = parseInt(document.getElementById("c1").value) || 0;
+            let c2 = parseInt(document.getElementById("c2").value) || 0;
+            let c3 = parseInt(document.getElementById("c3").value) || 0;
+
+            let totalEarned = c1 + c2 + c3;
+            let remaining = 100 - totalEarned; // Remaining points to reach 100
+
+            if (totalEarned > 100) {
+                document.getElementById("error-message").innerText = "Total points cannot exceed 100!";
+                return;
+            } else {
+                document.getElementById("error-message").innerText = "";
+            }
+
+            let ctx = document.getElementById('activityChart').getContext('2d');
+
+            if (window.myChart) {
+                window.myChart.destroy(); // Destroy previous chart if exists
+            }
+
+            window.myChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [`C1: ${c1}`, `C2: ${c2}`, `C3: ${c3}`, `Remaining: ${remaining}`],
+                    datasets: [{
+                        data: [c1, c2, c3, remaining],
+                        backgroundColor: ['#896b60','#d0c7c2','#6c4a3f','#f5f2ea']
+                    }]
+                },
+                options: {
+                    plugins: {
+                        datalabels: {
+                            color: 'black',
+                            font: {
+                                weight: 'bold'
+                            },
+                            formatter: (value, context) => value > 0 ? value : '' // Show value only if greater than 0
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels] // Enable data labels
+            });
+        }
+    </script>
+</body>
+</html>

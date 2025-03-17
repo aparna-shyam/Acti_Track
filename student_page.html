@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgb(57, 5, 5);
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        h1 {
+            color: white;
+        }
+        .button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 180px;
+            height: 180px;
+            margin: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .add { background: #896B60; }
+        .track { background: #6C4A3F; }
+        .events { background: #988080; }
+        .logout { background: #4A332D; }
+        .button img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+        .button-container {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Student Dashboard</h1>
+    <div class="button-container">
+        <a href="add_activity.html" class="button add">
+            <img src="add_icon.png" alt="Add Activity">
+            Add Activity Points
+        </a>
+        <a href="track_activity.html" class="button track">
+            <img src="track_icon.png" alt="Track Activity">
+            Track Activity Points
+        </a>
+        <a href="events.html" class="button events">
+            <img src="event_icon.png" alt="Check Events">
+            Check Events
+        </a>
+        <a href="#" class="button logout" id="logoutButton">
+            <img src="logout_icon.png" alt="Logout">
+            Logout
+        </a>
+    </div>
+
+    <script type="module">
+        import { logOut } from './auth.js';
+
+        document.getElementById("logoutButton").addEventListener("click", async () => {
+            await logOut();
+        });
+    </script>
+</body>
+</html>

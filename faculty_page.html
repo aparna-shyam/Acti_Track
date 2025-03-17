@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: rgb(57, 5, 5);
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Align items to the top */
+        }
+
+        h1 {
+            color: white;
+        }
+        
+        .button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 180px;
+            height: 180px;
+            margin: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .search { background:#6c4a3f; }
+        .events { background:#896b60; }
+        .logout { background: #d0c7c2; }
+        .button img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+        .button-container {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Faculty Dashboard</h1>
+    <div class="button-container">
+        <a href="search_faculty.html" class="button search">
+            <img src="search_icon.png" alt="Search Students">
+            Search Students
+        </a>
+        <a href="add_event.html" class="button events">
+            <img src="plus_icon.png" alt="Event Management">
+            Add Event
+        </a>
+        <a href="logout.html" class="button logout">
+            <img src="logout_icon.png" alt="Logout">
+            Logout
+        </a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Event</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: rgb(57, 5, 5);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #896B60;
+        }
+        form {
+            max-width: 500px;
+            width: 90%;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            color: black;
+        }
+        input, textarea, button {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        button {
+            background: #896B60;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #7A5F53;
+        }
+        .preview-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            z-index: 1000;
+            color: black;
+        }
+        .preview-content {
+            display: flex;
+            align-items: center;
+        }
+        .preview-content img {
+            max-width: 180px;
+            margin-right: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .preview-buttons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .preview-buttons button {
+            padding: 12px 25px;
+            font-size: 16px;
+        }
+        .error-message {
+            color: red;
+            margin-top: 5px;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHPuR1x40sYBd4D_DJVYd4tGuok7EgjaU",
+            authDomain: "actitrack-87ade.firebaseapp.com",
+            projectId: "actitrack-87ade",
+            storageBucket: "actitrack-87ade.appspot.com",
+            messagingSenderId: "468944089030",
+            appId: "1:468944089030:web:52f6e4ce653f9cbbd8ccc7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+            } else {
+                alert("You must be logged in to add an event.");
+                window.location.href = "login.html";
+            }
+        });
+
+        window.showPreview = function () {
+            let name = document.getElementById("eventName").value;
+            let organizers = document.getElementById("eventOrganizers").value;
+            let details = document.getElementById("eventDetails").value;
+            let date = document.getElementById("eventDate").value;
+            let time = document.getElementById("eventTime").value;
+            let venue = document.getElementById("eventVenue").value;
+
+            if (!name || !organizers || !details || !date || !time || !venue) {
+                let errorMessageDiv = document.getElementById("error-message");
+                if (!errorMessageDiv) {
+                    errorMessageDiv = document.createElement("div");
+                    errorMessageDiv.id = "error-message";
+                    errorMessageDiv.classList.add("error-message");
+                    document.querySelector("form").appendChild(errorMessageDiv);
+                }
+                errorMessageDiv.textContent = "Please fill in all required fields.";
+                return;
+            }
+
+            let errorMessageDiv = document.getElementById("error-message");
+            if (errorMessageDiv) {
+                errorMessageDiv.textContent = "";
+            }
+
+            let fileInput = document.getElementById("eventPoster");
+            let poster = fileInput.files[0] ? URL.createObjectURL(fileInput.files[0]) : "placeholder.jpg";
+
+            document.getElementById("previewImg").src = poster;
+            document.getElementById("previewDetails").innerHTML = `<b>${name}</b><br>Organized by: ${organizers}<br>Date: ${date} - ${time}<br>Venue: ${venue}<br>${details}`;
+            document.getElementById("previewPopup").style.display = "block";
+        }
+
+        window.closePreview = function () {
+            document.getElementById("previewPopup").style.display = "none";
+        }
+
+        window.addEvent = async function () {
+            if (!currentUser) {
+                alert("You must be logged in to add an event.");
+                return;
+            }
+
+            let name = document.getElementById("eventName").value;
+            let organizers = document.getElementById("eventOrganizers").value;
+            let details = document.getElementById("eventDetails").value;
+            let date = document.getElementById("eventDate").value;
+            let time = document.getElementById("eventTime").value;
+            let venue = document.getElementById("eventVenue").value;
+
+            if (!name || !organizers || !details || !date || !time || !venue) {
+                let errorMessageDiv = document.getElementById("error-message");
+                if (!errorMessageDiv) {
+                    errorMessageDiv = document.createElement("div");
+                    errorMessageDiv.id = "error-message";
+                    errorMessageDiv.classList.add("error-message");
+                    document.querySelector("form").appendChild(errorMessageDiv);
+                }
+                errorMessageDiv.textContent = "Please fill in all required fields.";
+                return;
+            }
+
+            let errorMessageDiv = document.getElementById("error-message");
+            if (errorMessageDiv) {
+                errorMessageDiv.textContent = "";
+            }
+
+            try {
+                await addDoc(collection(db, "events"), {
+                    name, organizers, details, date, time, venue
+                });
+                alert("Event successfully added!");
+                closePreview();
+            } catch (error) {
+                console.error("Error adding event: ", error);
+                alert("Failed to add event.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <form>
+        <h1>Add New Event</h1>
+        <input type="text" id="eventName" placeholder="Event Name" required>
+        <input type="text" id="eventOrganizers" placeholder="Organizers" required>
+        <textarea id="eventDetails" placeholder="Event Details" required></textarea>
+        <input type="date" id="eventDate" required>
+        <input type="time" id="eventTime" required>
+        <input type="text" id="eventVenue" placeholder="Venue" required>
+        <input type="file" id="eventPoster" accept="image/*">
+        <button type="button" onclick="showPreview()">Review Event</button>
+    </form>
+
+    <div id="previewPopup" class="preview-popup">
+        <div class="preview-content">
+            <img id="previewImg" src="" alt="Event Poster">
+            <div id="previewDetails"></div>
+        </div>
+        <div class="preview-buttons">
+            <button onclick="addEvent()">Confirm & Add Event</button>
+            <button onclick="closePreview()">Edit</button>
+        </div>
+    </div>
+</body>
+</html>

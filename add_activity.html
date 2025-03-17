@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Activity Points</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: rgb(57, 5, 5);
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: white; /* Ensure the heading is also white */
+        }
+        form {
+            max-width: 500px;
+            width: 90%;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            color: #4a5568;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        input, textarea, button, select {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        button {
+            background: #896b60;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #896b60;
+        }
+    </style>
+    <script type="module">
+        import { submitActivity } from './auth.js'; // Assuming you have an auth.js file
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById("activityForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const activityData = {
+                    uid: document.getElementById("uid").value,
+                    activityType: document.getElementById("activity_type").value,
+                    eventName: document.getElementById("event_name").value,
+                    organizedBy: document.getElementById("organized_by").value,
+                    startDate: document.getElementById("start_date").value,
+                    endDate: document.getElementById("end_date").value,
+                    duration: document.getElementById("duration").value,
+                    timestamp: new Date()
+                };
+
+                console.log("Submitting Activity Data:", activityData);
+
+                const result = await submitActivity(activityData);
+                if (result.success) {
+                    alert("Activity Submitted Successfully!");
+                } else {
+                    alert("Submission Failed! Error: " + result.error);
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <form id="activityForm">
+        <h1>Add Activity</h1>
+        <input type="text" id="uid" placeholder="Enter your UID" required>
+
+        <select id="activity_type" required>
+            <option value="">-- Select Activity --</option>
+            <option value="NCC/NSS">NCC/NSS</option>
+            <option value="Sports/Games">Sports/Games</option>
+            <option value="Music/Performing Arts/Literary Events">Music/Performing Arts/Literary Events</option>
+            <option value="Tech fest/Technical Quiz">Tech fest/Technical Quiz</option>
+            <option value="MOOC Courses (Coursera, Udemy etc)/Add On Courses">MOOC Courses (Coursera, Udemy etc)/Add On Courses</option>
+            <option value="MOOC with final exam and assessment certificate">MOOC with final exam and assessment certificate</option>
+            <option value="Competitions conducted by Professional Societies - (IEEE, IET, ASME, SAE, NASA etc.)">Competitions conducted by Professional Societies - (IEEE, IET, ASME, SAE, NASA etc.)</option>
+            <option value="Attending Webinars/Conferences/Seminars/Exhibitions/Workshop/STTP">Attending Webinars/Conferences/Seminars/Exhibitions/Workshop/STTP</option>
+            <option value="Paper/Poster Presentation">Paper/Poster Presentation</option>
+            <option value="Industrial Training/Internship">Industrial Training/Internship</option>
+            <option value="Industrial Exhibition/Visit">Industrial Exhibition/Visit</option>
+            <option value="Foreign Language Skills with assessment score card(TOEFL/GRE/...)">Foreign Language Skills with assessment score card(TOEFL/GRE/...)</option>
+            <option value="Entrepreneurship and Innovation - Startup">Entrepreneurship and Innovation - Startup</option>
+            <option value="Entrepreneurship and Innovation - Patent">Entrepreneurship and Innovation - Patent</option>
+            <option value="Entrepreneurship and Innovation - Product/Prototype">Entrepreneurship and Innovation - Product/Prototype</option>
+            <option value="Leadership and Management - Society/Association/Club">Leadership and Management - Society/Association/Club</option>
+            <option value="Leadership and Management - Elected Student Representatives">Leadership and Management - Elected Student Representatives</option>
+            
+
+        </select>
+
+        <input type="text" id="event_name" placeholder="Event Name" required>
+
+        <input type="text" id="organized_by" placeholder="Organized By" required>
+
+        <input type="date" id="start_date" required>
+
+        <input type="date" id="end_date" required>
+
+        <input type="number" id="duration" placeholder="Duration (Days)" min="1" required>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

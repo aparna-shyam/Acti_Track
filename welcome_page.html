@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to ActiTrack</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .container {
+            text-align: center;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: white;
+            padding: 10px;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        h1, p {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logo.png" alt="ActiTrack Logo" class="logo">
+        <h1>WELCOME TO ACTITRACK!</h1>
+        <p>Track Progress, Unlock Success!</p>
+        <div class="button-group">
+            <button onclick="location.href='login.html'" class="btn login">Login</button>
+            <button onclick="location.href='signup.html'" class="btn signup">Sign Up</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHPuR1x40sYBd4D_DJVYd4tGuok7EgjaU",
+            authDomain: "actitrack-87ade.firebaseapp.com",
+            projectId: "actitrack-87ade",
+            storageBucket: "actitrack-87ade.appspot.com",
+            messagingSenderId: "468944089030",
+            appId: "1:468944089030:web:52f6e4ce653f9cbbd8ccc7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        console.log("Firebase successfully connected!");
+    </script>
+</body>
+</html>

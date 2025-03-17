@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Details</title>
+    <script type="module">
+        import { db } from './auth.js';
+        import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        async function fetchDetails() {
+            let uid = document.getElementById("uidInput").value.trim();
+            if (!uid) {
+                alert("Please enter a UID");
+                return;
+            }
+
+            const q = query(collection(db, "activities"), where("uid", "==", uid));
+            const querySnapshot = await getDocs(q);
+            let tableBody = document.getElementById("tableBody");
+            tableBody.innerHTML = "";
+
+            if (querySnapshot.empty) {
+                alert("No records found for this UID");
+                return;
+            }
+            document.getElementById("detailsTable").style.display = "table";
+
+            querySnapshot.forEach((doc) => {
+                let data = doc.data();
+                let row = `<tr>
+                    <td>${data.eventName}</td>
+                    <td>${data.activityType}</td>
+                    <td>${data.organizedBy}</td>
+                    <td>${data.startDate}</td>
+                    <td>${data.endDate}</td>
+                    <td>${data.duration}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        window.fetchDetails = fetchDetails; // Make it accessible globally
+    </script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 20px; 
+            background-color: rgb(57, 5, 5);
+            color: white;
+        }
+        input, button { 
+            padding: 10px; 
+            margin: 10px; 
+            font-size: 16px; 
+        }
+        table { 
+            margin: 20px auto; 
+            border-collapse: collapse; 
+            width: 80%; 
+            background: white; 
+            color: black;
+        }
+        th, td { 
+            padding: 10px; 
+            border: 1px solid black; 
+        }
+        th { 
+            background: #896b60; 
+            color: white; 
+        }
+    </style>
+</head>
+<body>
+    <h2>Enter UID to Retrieve Activity Details</h2>
+    <input type="text" id="uidInput" placeholder="Enter UID">
+    <button onclick="fetchDetails()">Get Details</button>
+    <table id="detailsTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Event Name</th>
+                <th>Activity Type</th>
+                <th>Organized By</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</body>
+</html>
